@@ -3,9 +3,19 @@ import { createServer } from 'http';
 const PORT = process.env.PORT || 3000;
 
 const server = createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/html');
-  res.end('<h1>Hello, World!</h1>');
+  if (req.url === '/api/post') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(
+      JSON.stringify({
+        data: {
+          title: 'This is the title',
+          content: 'This is the content',
+          createdBy: 'Bob',
+          dateCreated: '2022-01-01T14:48:00.000Z',
+        },
+      }),
+    );
+  }
 });
 
 server.listen(PORT, () => console.log(`Server running on port:  ${PORT}`));
