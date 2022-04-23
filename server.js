@@ -52,6 +52,18 @@ const server = createServer((req, res) => {
         },
       }),
     );
+  } else if (req.url.match(/\/api\/todo\/\w+/) && req.method === 'PUT') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(
+      JSON.stringify({
+        data: {
+          title: 'This is the title',
+          content: 'This is the content',
+          createdBy: 'Bob',
+          dateCreated: '2022-01-01T14:48:00.000Z',
+        },
+      }),
+    );
   } else {
     res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ message: 'Not found' }));
