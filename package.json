@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/pacostas/vanilla-nodejs-api#readme",
   "devDependencies": {
-    "eslint": "^8.14.0"
+    "eslint": "^8.14.0",
+    "prettier": "2.6.2"
   }
 }
