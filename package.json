@@ -2,6 +2,7 @@
   "name": "vanilla-nodejs-api",
   "version": "0.0.1",
   "description": "A vanilla nodejs api where trying to avoid as much dependencies",
+  "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
     "test": "test"
