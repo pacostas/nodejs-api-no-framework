@@ -1,8 +1,7 @@
 {
   "name": "vanilla-nodejs-api",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A vanilla nodejs api where trying to avoid as much dependencies",
-  "main": "index.js",
   "scripts": {
     "test": "test"
   },
@@ -14,6 +13,10 @@
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/pacostas/vanilla-nodejs-api/issues"
+  },
+  "engines": {
+    "npm": ">=8.6.0",
+    "node": ">=18.0.0"
   },
   "homepage": "https://github.com/pacostas/vanilla-nodejs-api#readme"
 }
