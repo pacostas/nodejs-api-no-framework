@@ -3,11 +3,17 @@ import { createServer } from 'http';
 const PORT = process.env.PORT || 3000;
 
 const server = createServer((req, res) => {
-  if (req.url.match(/\/api\/post\/\w+/) && req.method === 'GET') {
+  if (req.url.match(/\/api\/todo\/\w+/) && req.method === 'GET') {
+    const id = req.url
+      .split('/')
+      .filter(pathParams => pathParams !== '/')
+      .pop();
+
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(
       JSON.stringify({
         data: {
+          id: id,
           title: 'This is the title',
           content: 'This is the content',
           createdBy: 'Bob',
@@ -21,6 +27,7 @@ const server = createServer((req, res) => {
       JSON.stringify({
         data: [
           {
+            id: 'hello',
             title: 'This is the title',
             content: 'This is the content',
             createdBy: 'Bob',
@@ -82,6 +89,9 @@ const server = createServer((req, res) => {
         },
       }),
     );
+  } else if (req.url.match(/\/health/) && req.method === 'GET') {
+    res.statusCode = 200;
+    res.end();
   } else {
     res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ message: 'Not found' }));
