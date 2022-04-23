@@ -3,7 +3,7 @@ import { createServer } from 'http';
 const PORT = process.env.PORT || 3000;
 
 const server = createServer((req, res) => {
-  if (req.url === '/api/post') {
+  if (req.url === '/api/post' && req.method === 'GET') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(
       JSON.stringify({
