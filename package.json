@@ -20,8 +20,8 @@
     "url": "https://github.com/pacostas/vanilla-nodejs-api/issues"
   },
   "engines": {
-    "npm": ">=8.6.0",
-    "node": ">=18.0.0"
+    "npm": ">=8.5.0",
+    "node": ">=16.0.0"
   },
   "homepage": "https://github.com/pacostas/vanilla-nodejs-api#readme",
   "devDependencies": {
