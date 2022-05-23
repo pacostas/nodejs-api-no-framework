@@ -119,7 +119,7 @@ const server = createServer((req, res) => {
         },
       }),
     );
-  } else if (req.url.match(/\/health/) && req.method === 'GET') {
+  } else if (req.url.match(/\/health\//) && req.method === 'GET') {
     res.statusCode = 200;
     res.end();
   } else {
