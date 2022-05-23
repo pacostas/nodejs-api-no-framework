@@ -90,6 +90,9 @@ const server = createServer((req, res) => {
         },
       }),
     );
+  } else if (req.url.match(/\/health\//) && req.method === 'GET') {
+    res.statusCode = 200;
+    res.end();
   } else {
     res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ message: 'Not found' }));
