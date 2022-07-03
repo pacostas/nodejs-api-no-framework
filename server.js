@@ -122,23 +122,29 @@ const server = createServer((req, res) => {
       });
     });
   } else if (req.url.match(/\/api\/todo\/\w+/) && req.method === 'DELETE') {
-    const id = req.url
+    const _id = req.url
       .split('/')
       .filter(pathParams => pathParams !== '/')
       .pop();
 
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(
-      JSON.stringify({
-        data: {
-          id: id,
-          title: 'This is the title',
-          content: 'This is the content',
-          createdBy: 'Bob',
-          dateCreated: '2022-01-01T14:48:00.000Z',
-        },
-      }),
-    );
+    const todoCollection = db.collection('todo');
+
+    const doc = { _id: ObjectId(_id) };
+
+    todoCollection.deleteOne(doc, function (error, result) {
+      if (!error) {
+        if (result.deletedCount === 1) {
+          res.statusCode = 200;
+        } else {
+          res.statusCode = 400;
+        }
+        res.end();
+      } else {
+        console.log(`An error occurred: ${error}`);
+        res.statusCode = 400;
+        res.end();
+      }
+    });
   } else if (req.url.match(/\/health\//) && req.method === 'GET') {
     res.statusCode = 200;
     res.end();
