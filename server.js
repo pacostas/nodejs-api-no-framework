@@ -20,9 +20,9 @@ async function run() {
     db = mongoClient.db(mongoDBName);
     console.log('Connected successfully to database');
   } catch (err) {
+    const retrySeconds = 3000;
     console.log('Oh, there is an error in connecting to database');
     console.log(err);
-    const retrySeconds = 3000;
     console.log(`Retrying in reconnecting in ${retrySeconds} seconds.`);
     setTimeout(function () {
       run();
@@ -72,9 +72,18 @@ const server = createServer((req, res) => {
       data += chunk;
     });
     req.on('end', () => {
-      console.log(JSON.parse(data));
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(data));
+      const doc = JSON.parse(data);
+      const todoCollection = db.collection('todo');
+      todoCollection.insertOne(doc, function (error, result) {
+        if (!error) {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ _id: result.insertedId }));
+        } else {
+          console.log(`An error occurred: ${error}`);
+          res.statusCode = 400;
+          res.end();
+        }
+      });
     });
   } else if (req.url.match(/\/api\/todo\/\w+/) && req.method === 'PUT') {
     let data = '';
