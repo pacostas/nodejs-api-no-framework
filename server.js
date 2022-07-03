@@ -34,22 +34,26 @@ run();
 
 const server = createServer((req, res) => {
   if (req.url.match(/\/api\/todo\/\w+/) && req.method === 'GET') {
-    const id = req.url
+    const _id = req.url
       .split('/')
       .filter(pathParams => pathParams !== '/')
       .pop();
 
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(
-      JSON.stringify({
-        data: {
-          id: id,
-          title: 'This is the title',
-          content: 'This is the content',
-          createdBy: 'Bob',
-          dateCreated: '2022-01-01T14:48:00.000Z',
-        },
-      }),
+    const todoCollection = db.collection('todo');
+
+    todoCollection.findOne(
+      { _id: ObjectId(_id) },
+      {},
+      function (error, result) {
+        if (!error) {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ data: result }));
+        } else {
+          console.log(`An error occurred: ${error}`);
+          res.statusCode = 500;
+          res.end(JSON.stringify(result));
+        }
+      },
     );
   } else if (req.url.match(/\/api\/todo/) && req.method === 'GET') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
