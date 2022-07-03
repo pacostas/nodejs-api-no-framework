@@ -56,20 +56,20 @@ const server = createServer((req, res) => {
       },
     );
   } else if (req.url.match(/\/api\/todo/) && req.method === 'GET') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(
-      JSON.stringify({
-        data: [
-          {
-            id: 'hello',
-            title: 'This is the title',
-            content: 'This is the content',
-            createdBy: 'Bob',
-            dateCreated: '2022-01-01T14:48:00.000Z',
-          },
-        ],
-      }),
-    );
+    const todoCollection = db.collection('todo');
+
+    const myCursor = todoCollection.find({});
+
+    myCursor.toArray(function (error, result) {
+      if (!error) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ data: result }));
+      } else {
+        console.log(`An error occurred: ${error}`);
+        res.statusCode = 500;
+        res.end();
+      }
+    });
   } else if (req.url.match(/\/api\/todo/) && req.method === 'POST') {
     let data = '';
     req.on('data', chunk => {
