@@ -161,6 +161,11 @@ const server = createServer((req, res) => {
       .filter(pathParams => pathParams !== '/')
       .pop();
 
+    if (!ObjectId.isValid(_id)) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'wrong id format' }));
+    }
+
     const todoCollection = db.collection('todo');
 
     const doc = { _id: ObjectId(_id) };
