@@ -113,19 +113,31 @@ const server = createServer((req, res) => {
       .filter(pathParams => pathParams !== '/')
       .pop();
 
+    if (!ObjectId.isValid(_id)) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'wrong id format' }));
+    }
+
     let data = '';
     req.on('data', chunk => {
       data += chunk;
     });
     req.on('end', () => {
+      const doc = JSON.parse(data);
+      const { error, value } = Todo.validate(doc);
+      if (error) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ error }));
+      }
+
       const todoCollection = db.collection('todo');
+
       const filter = {
         _id: ObjectId(_id),
       };
 
-      const doc = JSON.parse(data);
       const updateDoc = {
-        $set: doc,
+        $set: value,
       };
 
       todoCollection.updateOne(filter, updateDoc, function (error, result) {
