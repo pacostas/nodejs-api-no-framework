@@ -41,7 +41,7 @@ const server = createServer((req, res) => {
 
     if (!ObjectId.isValid(_id)) {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      return res.end({ error: 'wrong id format' });
+      return res.end(JSON.stringify({ error: 'wrong id format' }));
     }
 
     const todoCollection = db.collection('todo');
