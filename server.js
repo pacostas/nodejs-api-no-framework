@@ -1,6 +1,7 @@
 import { createServer } from 'http';
 import { MongoClient, ObjectId } from 'mongodb';
 
+import Joi from 'joi';
 const PORT = process.env.PORT || 8080;
 const mongoUser = process.env.MONGO_USER || 'root';
 const mongoPassword = process.env.MONGO_PASSWORD || 'password';
@@ -31,6 +32,13 @@ async function run() {
 }
 
 run();
+
+const todoSchema = {
+  title: Joi.string().min(3).max(30).required(),
+  content: Joi.string().min(3).max(300),
+};
+
+const Todo = Joi.object(todoSchema);
 
 const server = createServer((req, res) => {
   if (req.url.match(/\/api\/todo\/\w+/) && req.method === 'GET') {
@@ -82,8 +90,13 @@ const server = createServer((req, res) => {
     });
     req.on('end', () => {
       const doc = JSON.parse(data);
+      const { error, value } = Todo.validate(doc);
+      if (error) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ error }));
+      }
       const todoCollection = db.collection('todo');
-      todoCollection.insertOne(doc, function (error, result) {
+      todoCollection.insertOne(value, function (error, result) {
         if (!error) {
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ _id: result.insertedId }));
