@@ -2,7 +2,8 @@ import { createServer } from 'http';
 import { MongoClient, ObjectId } from 'mongodb';
 import { getAll, getOne } from './src/resources/todo/todo.controller.js';
 
-import Joi from 'joi';
+import { Todo } from './src/resources/todo/todo.model.js';
+
 const PORT = process.env.PORT || 8080;
 const mongoUser = process.env.MONGO_USER || 'root';
 const mongoPassword = process.env.MONGO_PASSWORD || 'password';
@@ -33,13 +34,6 @@ async function run() {
 }
 
 run();
-
-const todoSchema = {
-  title: Joi.string().min(3).max(30).required(),
-  content: Joi.string().min(3).max(300),
-};
-
-const Todo = Joi.object(todoSchema);
 
 const server = createServer((req, res) => {
   if (req.url.match(/\/api\/todo\/\w+/) && req.method === 'GET') {
