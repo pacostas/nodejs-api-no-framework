@@ -1,5 +1,6 @@
 import { createServer } from 'http';
 import { MongoClient, ObjectId } from 'mongodb';
+import { getAll, getOne } from './src/resources/todo/todo.controller.js';
 
 import Joi from 'joi';
 const PORT = process.env.PORT || 8080;
@@ -42,32 +43,7 @@ const Todo = Joi.object(todoSchema);
 
 const server = createServer((req, res) => {
   if (req.url.match(/\/api\/todo\/\w+/) && req.method === 'GET') {
-    const _id = req.url
-      .split('/')
-      .filter(pathParams => pathParams !== '/')
-      .pop();
-
-    if (!ObjectId.isValid(_id)) {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ error: 'wrong id format' }));
-    }
-
-    const todoCollection = db.collection('todo');
-
-    todoCollection.findOne(
-      { _id: ObjectId(_id) },
-      {},
-      function (error, result) {
-        if (!error) {
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ data: result }));
-        } else {
-          console.log(`An error occurred: ${error}`);
-          res.statusCode = 500;
-          res.end(JSON.stringify(result));
-        }
-      },
-    );
+    return getOne(req, res);
   } else if (req.url.match(/\/api\/todo/) && req.method === 'GET') {
     const todoCollection = db.collection('todo');
 
