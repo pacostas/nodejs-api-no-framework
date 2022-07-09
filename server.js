@@ -4,9 +4,8 @@ import {
   createOne,
   getAll,
   getOne,
+  updateOne,
 } from './src/resources/todo/todo.controller.js';
-
-import { Todo } from './src/resources/todo/todo.model.js';
 
 const PORT = process.env.PORT || 8080;
 const mongoUser = process.env.MONGO_USER || 'root';
@@ -47,53 +46,7 @@ const server = createServer((req, res) => {
   } else if (req.url.match(/\/api\/todo/) && req.method === 'POST') {
     return createOne(req, res);
   } else if (req.url.match(/\/api\/todo\/\w+/) && req.method === 'PUT') {
-    const _id = req.url
-      .split('/')
-      .filter(pathParams => pathParams !== '/')
-      .pop();
-
-    if (!ObjectId.isValid(_id)) {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ error: 'wrong id format' }));
-    }
-
-    let data = '';
-    req.on('data', chunk => {
-      data += chunk;
-    });
-    req.on('end', () => {
-      const doc = JSON.parse(data);
-      const { error, value } = Todo.validate(doc);
-      if (error) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ error }));
-      }
-
-      const todoCollection = db.collection('todo');
-
-      const filter = {
-        _id: ObjectId(_id),
-      };
-
-      const updateDoc = {
-        $set: value,
-      };
-
-      todoCollection.updateOne(filter, updateDoc, function (error, result) {
-        if (!error) {
-          if (result.matchedCount === 1) {
-            res.statusCode = 200;
-          } else {
-            res.statusCode = 400;
-          }
-          res.end();
-        } else {
-          console.log(`An error occurred: ${error}`);
-          res.statusCode = 400;
-          res.end();
-        }
-      });
-    });
+    return updateOne(req, res);
   } else if (req.url.match(/\/api\/todo\/\w+/) && req.method === 'DELETE') {
     const _id = req.url
       .split('/')

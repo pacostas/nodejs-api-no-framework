@@ -64,3 +64,52 @@ export function createOne(req, res) {
     });
   });
 }
+
+export function updateOne(req, res) {
+  const _id = req.url
+    .split('/')
+    .filter(pathParams => pathParams !== '/')
+    .pop();
+
+  if (!ObjectId.isValid(_id)) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ error: 'wrong id format' }));
+  }
+
+  let data = '';
+  req.on('data', chunk => {
+    data += chunk;
+  });
+  req.on('end', () => {
+    const doc = JSON.parse(data);
+    const { error, value } = Todo.validate(doc);
+    if (error) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error }));
+    }
+
+    const filter = {
+      _id: ObjectId(_id),
+    };
+
+    const updateDoc = {
+      $set: value,
+    };
+
+    todoCollection.updateOne(filter, updateDoc, function (error, result) {
+      if (!error) {
+        if (result.matchedCount === 1) {
+          console.log(result);
+          res.statusCode = 200;
+        } else {
+          res.statusCode = 400;
+        }
+        res.end();
+      } else {
+        console.log(`An error occurred: ${error}`);
+        res.statusCode = 400;
+        res.end();
+      }
+    });
+  });
+}
