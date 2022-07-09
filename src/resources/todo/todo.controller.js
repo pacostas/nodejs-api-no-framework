@@ -22,3 +22,18 @@ export function getOne(req, res) {
     }
   });
 }
+
+export function getAll(req, res) {
+  const myCursor = todoCollection.find({});
+
+  myCursor.toArray(function (error, result) {
+    if (!error) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ data: result }));
+    } else {
+      console.log(`An error occurred: ${error}`);
+      res.statusCode = 500;
+      res.end();
+    }
+  });
+}

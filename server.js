@@ -45,20 +45,7 @@ const server = createServer((req, res) => {
   if (req.url.match(/\/api\/todo\/\w+/) && req.method === 'GET') {
     return getOne(req, res);
   } else if (req.url.match(/\/api\/todo/) && req.method === 'GET') {
-    const todoCollection = db.collection('todo');
-
-    const myCursor = todoCollection.find({});
-
-    myCursor.toArray(function (error, result) {
-      if (!error) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ data: result }));
-      } else {
-        console.log(`An error occurred: ${error}`);
-        res.statusCode = 500;
-        res.end();
-      }
-    });
+    return getAll(req, res);
   } else if (req.url.match(/\/api\/todo/) && req.method === 'POST') {
     let data = '';
     req.on('data', chunk => {
