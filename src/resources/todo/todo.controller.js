@@ -113,3 +113,32 @@ export function updateOne(req, res) {
     });
   });
 }
+
+export function deleteOne(req, res) {
+  const _id = req.url
+    .split('/')
+    .filter(pathParams => pathParams !== '/')
+    .pop();
+
+  if (!ObjectId.isValid(_id)) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ error: 'wrong id format' }));
+  }
+
+  const doc = { _id: ObjectId(_id) };
+
+  todoCollection.deleteOne(doc, function (error, result) {
+    if (!error) {
+      if (result.deletedCount === 1) {
+        res.statusCode = 200;
+      } else {
+        res.statusCode = 400;
+      }
+      res.end();
+    } else {
+      console.log(`An error occurred: ${error}`);
+      res.statusCode = 400;
+      res.end();
+    }
+  });
+}
