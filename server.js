@@ -1,6 +1,10 @@
 import { createServer } from 'http';
 import { MongoClient, ObjectId } from 'mongodb';
-import { getAll, getOne } from './src/resources/todo/todo.controller.js';
+import {
+  createOne,
+  getAll,
+  getOne,
+} from './src/resources/todo/todo.controller.js';
 
 import { Todo } from './src/resources/todo/todo.model.js';
 
@@ -41,29 +45,7 @@ const server = createServer((req, res) => {
   } else if (req.url.match(/\/api\/todo/) && req.method === 'GET') {
     return getAll(req, res);
   } else if (req.url.match(/\/api\/todo/) && req.method === 'POST') {
-    let data = '';
-    req.on('data', chunk => {
-      data += chunk;
-    });
-    req.on('end', () => {
-      const doc = JSON.parse(data);
-      const { error, value } = Todo.validate(doc);
-      if (error) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ error }));
-      }
-      const todoCollection = db.collection('todo');
-      todoCollection.insertOne(value, function (error, result) {
-        if (!error) {
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ _id: result.insertedId }));
-        } else {
-          console.log(`An error occurred: ${error}`);
-          res.statusCode = 400;
-          res.end();
-        }
-      });
-    });
+    return createOne(req, res);
   } else if (req.url.match(/\/api\/todo\/\w+/) && req.method === 'PUT') {
     const _id = req.url
       .split('/')
