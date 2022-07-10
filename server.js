@@ -7,20 +7,23 @@ import {
   updateOne,
 } from './src/resources/todo/todo.controller.js';
 
+import { getIsMethodType } from './src/utils/route.js';
 const PORT = process.env.PORT || 8080;
 
 const server = createServer((req, res) => {
-  if (req.url.match(/\/api\/todo\/\w+/) && req.method === 'GET') {
+  const { GET, POST, PUT, DELETE } = getIsMethodType(req);
+
+  if (GET && req.url.match(/\/api\/todo\/\w+/)) {
     return getOne(req, res);
-  } else if (req.url.match(/\/api\/todo/) && req.method === 'GET') {
+  } else if (GET && req.url.match(/\/api\/todo/)) {
     return getAll(req, res);
-  } else if (req.url.match(/\/api\/todo/) && req.method === 'POST') {
+  } else if (POST && req.url.match(/\/api\/todo/)) {
     return createOne(req, res);
-  } else if (req.url.match(/\/api\/todo\/\w+/) && req.method === 'PUT') {
+  } else if (PUT && req.url.match(/\/api\/todo\/\w+/)) {
     return updateOne(req, res);
-  } else if (req.url.match(/\/api\/todo\/\w+/) && req.method === 'DELETE') {
+  } else if (DELETE && req.url.match(/\/api\/todo\/\w+/)) {
     return deleteOne(req, res);
-  } else if (req.url.match(/\/health\//) && req.method === 'GET') {
+  } else if (GET && req.url.match(/\/health\//)) {
     res.statusCode = 200;
     res.end();
   } else {
