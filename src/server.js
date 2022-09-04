@@ -5,12 +5,13 @@ import {
   getAll,
   getOne,
   updateOne,
-} from './src/resources/todo/todo.controller.js';
+} from './resources/todo/todo.controller.js';
 
-import { getIsMethodType } from './src/utils/route.js';
+import { getIsMethodType } from './utils/route.js';
+
 const PORT = process.env.PORT || 8080;
 
-const server = createServer((req, res) => {
+export const server = createServer((req, res) => {
   const { GET, POST, PUT, DELETE } = getIsMethodType(req);
 
   if (GET && req.url.match(/\/api\/todo\/\w+/)) {
@@ -32,4 +33,19 @@ const server = createServer((req, res) => {
   }
 });
 
-server.listen(PORT, () => console.log(`Server running on port:  ${PORT}`));
+export const start = async () => {
+  try {
+    server.listen(PORT, () => console.log(`Server running on port: ${PORT}`));
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const close = async () => {
+  try {
+    process.exit();
+  } catch (e) {
+    console.error(e);
+  }
+};
+

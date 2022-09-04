@@ -4,9 +4,9 @@
   "description": "A vanilla nodejs api where trying to avoid as much dependencies",
   "type": "module",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js",
-    "test": "test",
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "MONGO_DB_NAME=testTodo MONGO_PORT=27018 PORT=8082 node --test",
     "lint": "eslint --ignore-path .gitignore .",
     "lint:fix": "npm run lint -- --fix"
   },

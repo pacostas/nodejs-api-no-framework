@@ -20,9 +20,9 @@ async function run() {
     console.log('Connected successfully to database');
   } catch (err) {
     const retrySeconds = 3000;
-    console.log('Oh, there is an error in connecting to database');
+    console.log('Oh, there is an error connecting to database');
     console.log(err);
-    console.log(`Retrying in reconnecting in ${retrySeconds} seconds.`);
+    console.log(`Retrying reconnecting in ${retrySeconds} seconds.`);
     setTimeout(function () {
       run();
     }, retrySeconds * 1000);
