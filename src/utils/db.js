@@ -1,32 +1,35 @@
 import { MongoClient } from 'mongodb';
+import { mongoDBUri, mongoDBName } from '../configs/index.js';
 
-const mongoUser = process.env.MONGO_USER || 'root';
-const mongoPassword = process.env.MONGO_PASSWORD || 'password';
-const mongoHost = process.env.MONGO_URL || '127.0.0.1';
-const mongoPort = process.env.MONGO_PORT || 27017;
-const mongoDBName = process.env.MONGO_DB_NAME || 'todoList';
-
-const mongoDBUri = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}`;
 const mongoClient = new MongoClient(mongoDBUri);
 
-export let db;
-export let todoCollection;
+let client;
+let db;
 
-async function run() {
-  try {
-    await mongoClient.connect();
-    db = mongoClient.db(mongoDBName);
-    todoCollection = db.collection('todo');
-    console.log('Connected successfully to database');
-  } catch (err) {
-    const retrySeconds = 3000;
-    console.log('Oh, there is an error connecting to database');
-    console.log(err);
-    console.log(`Retrying reconnecting in ${retrySeconds} seconds.`);
-    setTimeout(function () {
-      run();
-    }, retrySeconds * 1000);
+export const connectMongoDB = async () => {
+  if (!client) {
+    try {
+      client = await mongoClient.connect();
+      console.log('MongoDB Connection established');
+      return db;
+    } catch (err) {
+      console.log(err);
+      console.log(`Retrying to reconnect...`);
+      connectMongoDB();
+    }
   }
-}
+};
 
-run();
+export const getDB = async () => {
+  if (!client) {
+    client = await connectMongoDB();
+  }
+
+  if (!db) {
+    db = client.db(mongoDBName);
+  }
+
+  return db;
+};
+
+export const closeMongoDB = async () => mongoClient.close();

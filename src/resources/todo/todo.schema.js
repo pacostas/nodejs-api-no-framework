@@ -5,4 +5,4 @@ const todoSchema = {
   content: Joi.string().min(3).max(300),
 };
 
-export const Todo = Joi.object(todoSchema);
+export const TodoValidator = Joi.object(todoSchema);

@@ -1,11 +1,7 @@
 import { createServer } from 'http';
-import {
-  createOne,
-  deleteOne,
-  getAll,
-  getOne,
-  updateOne,
-} from './resources/todo/todo.controller.js';
+import { getOne, getAll, createOne, deleteOne, updateOne } from './resources/todo/todo.controller.js';
+
+import { connectMongoDB, closeMongoDB } from './utils/db.js';
 
 import { getIsMethodType } from './utils/route.js';
 
@@ -35,6 +31,7 @@ export const server = createServer((req, res) => {
 
 export const start = async () => {
   try {
+    connectMongoDB();
     server.listen(PORT, () => console.log(`Server running on port: ${PORT}`));
   } catch (e) {
     console.error(e);
@@ -43,9 +40,9 @@ export const start = async () => {
 
 export const close = async () => {
   try {
+    closeMongoDB();
     process.exit();
   } catch (e) {
     console.error(e);
   }
 };
-
