@@ -1,7 +1,7 @@
 {
-  "name": "vanilla-nodejs-api",
+  "name": "nodejs-api-no-framework",
   "version": "0.0.1",
-  "description": "A vanilla nodejs api where trying to avoid as much dependencies",
+  "description": "A nodejs api without using any framework.",
   "type": "module",
   "scripts": {
     "dev": "nodemon index.js",
@@ -12,18 +12,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pacostas/vanilla-nodejs-api.git"
+    "url": "git+https://github.com/pacostas/nodejs-api-no-framework.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/pacostas/vanilla-nodejs-api/issues"
+    "url": "https://github.com/pacostas/nodejs-api-no-framework/issues"
   },
   "engines": {
     "npm": ">=8.6.0",
     "node": ">=18.0.0"
   },
-  "homepage": "https://github.com/pacostas/vanilla-nodejs-api#readme",
+  "homepage": "https://github.com/pacostas/nodejs-api-no-framework#readme",
   "devDependencies": {
     "eslint": "^8.14.0",
     "mongodb-memory-server": "^8.5.1",
