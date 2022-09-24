@@ -2,48 +2,54 @@ import { ObjectId } from 'mongodb';
 import { getDB } from '../utils/db.js';
 
 export const getOne = model => async (req, res) => {
-  const db = await getDB();
-  console.log(model.collection);
-  const collection = db.collection(model.collection);
+  try {
+    const db = await getDB();
+    const collection = db.collection(model.collection);
 
-  const _id = req.url
-    .split('/')
-    .filter(pathParams => pathParams !== '/')
-    .pop();
+    const _id = req.url
+      .split('/')
+      .filter(pathParams => pathParams !== '/')
+      .pop();
 
-  if (!ObjectId.isValid(_id)) {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    return res.end(JSON.stringify({ error: 'wrong id format' }));
-  }
+    res.on('error', err => {
+      console.error(err);
+    });
 
-  collection.findOne({ _id: ObjectId(_id) }, {}, function (error, result) {
-    if (!error) {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ data: result }));
-    } else {
-      console.log(`An error occurred: ${error}`);
-      res.statusCode = 500;
-      res.end(JSON.stringify(result));
+    if (!ObjectId.isValid(_id)) {
+      return res
+        .writeHead(200, { 'Content-Type': 'application/json' })
+        .end(JSON.stringify({ error: 'wrong id format' }));
     }
-  });
+
+    const result = await collection.findOne({ _id: ObjectId(_id) }, {});
+
+    return res
+      .writeHead(200, { 'Content-Type': 'application/json' })
+      .end(JSON.stringify({ data: result }));
+  } catch (err) {
+    console.log(err);
+    return res.writeHead(500).end();
+  }
 };
 
 export const getAll = model => async (req, res) => {
-  const db = await getDB();
-  const collection = db.collection(model.collection);
+  try {
+    const db = await getDB();
+    const collection = db.collection(model.collection);
 
-  const myCursor = collection.find({});
+    const result = await collection.find({}).toArray();
 
-  myCursor.toArray(function (error, result) {
-    if (!error) {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ data: result }));
-    } else {
-      console.log(`An error occurred: ${error}`);
-      res.statusCode = 500;
-      res.end();
-    }
-  });
+    res.on('error', err => {
+      console.error(err);
+    });
+
+    return res
+      .writeHead(200, { 'Content-Type': 'application/json' })
+      .end(JSON.stringify({ data: result }));
+  } catch (err) {
+    console.log(err);
+    return res.writeHead(500).end();
+  }
 };
 
 export const createOne = model => async (req, res) => {
@@ -52,27 +58,36 @@ export const createOne = model => async (req, res) => {
   const collection = db.collection(model.collection);
   const validator = model.validator;
   let data = '';
-  req.on('data', chunk => {
-    data += chunk;
-  });
-  req.on('end', () => {
-    const doc = JSON.parse(data);
-    const { error, value } = validator.validate(doc);
-    if (error) {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ error }));
-    }
-    collection.insertOne(value, function (error, result) {
-      if (!error) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ _id: result.insertedId }));
-      } else {
-        console.log(`An error occurred: ${error}`);
-        res.statusCode = 400;
-        res.end();
+  req
+    .on('data', chunk => {
+      data += chunk;
+    })
+    .on('end', () => {
+      const doc = JSON.parse(data);
+      const { error, value } = validator.validate(doc);
+      if (error) {
+        return res
+          .writeHead(200, { 'Content-Type': 'application/json' })
+          .end(JSON.stringify({ error }));
       }
+      collection.insertOne(value, function (error, result) {
+        res.on('error', err => {
+          console.error(err);
+        });
+        if (!error) {
+          return res
+            .writeHead(200, { 'Content-Type': 'application/json' })
+            .end(JSON.stringify({ _id: result.insertedId }));
+        } else {
+          console.log(`An error occurred: ${error}`);
+          return res.writeHead(400).end();
+        }
+      });
+    })
+    .on('error', error => {
+      console.log(`An error occurred: ${error}`);
+      return res.writeHead(500).end();
     });
-  });
 };
 
 export const updateOne = model => async (req, res) => {
@@ -88,79 +103,89 @@ export const updateOne = model => async (req, res) => {
     .pop();
 
   if (!ObjectId.isValid(_id)) {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    return res.end(JSON.stringify({ error: 'wrong id format' }));
+    return res
+      .writeHead(200, { 'Content-Type': 'application/json' })
+      .end(JSON.stringify({ error: 'wrong id format' }));
   }
 
   let data = '';
-  req.on('data', chunk => {
-    data += chunk;
-  });
-  req.on('end', () => {
-    const doc = JSON.parse(data);
-    const { error, value } = validator.validate(doc);
-    if (error) {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ error }));
-    }
-
-    const filter = {
-      _id: ObjectId(_id),
-    };
-
-    const updateDoc = {
-      $set: value,
-    };
-
-    collection.updateOne(filter, updateDoc, function (error, result) {
-      if (!error) {
-        if (result.matchedCount === 1) {
-          console.log(result);
-          res.statusCode = 200;
-        } else {
-          res.statusCode = 400;
-        }
-        res.end();
-      } else {
-        console.log(`An error occurred: ${error}`);
-        res.statusCode = 400;
-        res.end();
+  req
+    .on('data', chunk => {
+      data += chunk;
+    })
+    .on('end', () => {
+      const doc = JSON.parse(data);
+      const { error, value } = validator.validate(doc);
+      if (error) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ error }));
       }
+
+      const filter = {
+        _id: ObjectId(_id),
+      };
+
+      const updateDoc = {
+        $set: value,
+      };
+
+      collection.updateOne(filter, updateDoc, function (error, result) {
+        if (!error) {
+          res.on('error', err => {
+            console.error(err);
+          });
+          if (result.matchedCount === 1) {
+            res.writeHead(200);
+          } else {
+            res.writeHead(400);
+          }
+          return res.end();
+        } else {
+          console.log(`An error occurred: ${error}`);
+          return res.writeHead(400).end();
+        }
+      });
+    })
+    .on('error', error => {
+      console.log(`An error occurred: ${error}`);
+      return res.writeHead(500).end();
     });
-  });
 };
 
 export const deleteOne = model => async (req, res) => {
-  const db = await getDB();
+  try {
+    const db = await getDB();
 
-  const collection = db.collection(model.collection);
+    const collection = db.collection(model.collection);
 
-  const _id = req.url
-    .split('/')
-    .filter(pathParams => pathParams !== '/')
-    .pop();
+    const _id = req.url
+      .split('/')
+      .filter(pathParams => pathParams !== '/')
+      .pop();
 
-  if (!ObjectId.isValid(_id)) {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    return res.end(JSON.stringify({ error: 'wrong id format' }));
-  }
-
-  const doc = { _id: ObjectId(_id) };
-
-  collection.deleteOne(doc, function (error, result) {
-    if (!error) {
-      if (result.deletedCount === 1) {
-        res.statusCode = 200;
-      } else {
-        res.statusCode = 400;
-      }
-      res.end();
-    } else {
-      console.log(`An error occurred: ${error}`);
-      res.statusCode = 400;
-      res.end();
+    if (!ObjectId.isValid(_id)) {
+      res
+        .writeHead(200, { 'Content-Type': 'application/json' })
+        .end(JSON.stringify({ error: 'wrong id format' }));
     }
-  });
+
+    const doc = { _id: ObjectId(_id) };
+
+    const result = await collection.deleteOne(doc);
+
+    res.on('error', err => {
+      console.error(err);
+    });
+    if (result.deletedCount === 1) {
+      res.writeHead(200);
+    } else {
+      res.writeHead(400);
+    }
+    return res.end();
+  } catch (err) {
+    console.log(err);
+    return res.writeHead(500).end();
+  }
 };
 
 export const crudControllers = model => ({

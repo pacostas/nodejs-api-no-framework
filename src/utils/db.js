@@ -10,8 +10,7 @@ export const connectMongoDB = async () => {
   if (!client) {
     try {
       client = await mongoClient.connect();
-      console.log('MongoDB Connection established');
-      return db;
+      console.log('MongoDB connection established');
     } catch (err) {
       console.log(err);
       console.log(`Retrying to reconnect...`);
@@ -20,16 +19,13 @@ export const connectMongoDB = async () => {
   }
 };
 
-export const getDB = async () => {
-  if (!client) {
-    client = await connectMongoDB();
+export const getDB = () => {
+  if (client) {
+    if (!db) {
+      db = client.db(mongoDBName);
+    }
+    return db;
   }
-
-  if (!db) {
-    db = client.db(mongoDBName);
-  }
-
-  return db;
 };
 
 export const closeMongoDB = async () => mongoClient.close();

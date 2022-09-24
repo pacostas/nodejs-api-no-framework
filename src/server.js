@@ -1,6 +1,7 @@
 import { createServer } from 'http';
-import { getOne, getAll, createOne, deleteOne, updateOne } from './resources/todo/todo.controller.js';
+import todoCrudControllers from './resources/todo/todo.controller.js';
 
+const { getOne, getAll, createOne, deleteOne, updateOne } = todoCrudControllers;
 import { connectMongoDB, closeMongoDB } from './utils/db.js';
 
 import { getIsMethodType } from './utils/route.js';
@@ -10,6 +11,7 @@ const PORT = process.env.PORT || 8080;
 export const server = createServer((req, res) => {
   const { GET, POST, PUT, DELETE } = getIsMethodType(req);
 
+  //Use if statements to do the routing
   if (GET && req.url.match(/\/api\/todo\/\w+/)) {
     return getOne(req, res);
   } else if (GET && req.url.match(/\/api\/todo/)) {
@@ -21,11 +23,11 @@ export const server = createServer((req, res) => {
   } else if (DELETE && req.url.match(/\/api\/todo\/\w+/)) {
     return deleteOne(req, res);
   } else if (GET && req.url.match(/\/health\//)) {
-    res.statusCode = 200;
-    res.end();
+    return res.writeHead(200).end();
   } else {
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ message: 'Not found' }));
+    return res
+      .writeHead(404, { 'Content-Type': 'application/json' })
+      .end(JSON.stringify({ message: 'Not found' }));
   }
 });
 
