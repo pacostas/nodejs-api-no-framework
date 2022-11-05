@@ -17,11 +17,17 @@ export const getOne = model => async (req, res) => {
 
     if (!ObjectId.isValid(_id)) {
       return res
-        .writeHead(200, { 'Content-Type': 'application/json' })
+        .writeHead(400, { 'Content-Type': 'application/json' })
         .end(JSON.stringify({ error: 'wrong id format' }));
     }
 
     const result = await collection.findOne({ _id: ObjectId(_id) }, {});
+
+    if (!result) {
+      return res
+        .writeHead(400, { 'Content-Type': 'application/json' })
+        .end(JSON.stringify({ error: 'object not found' }));
+    }
 
     return res
       .writeHead(200, { 'Content-Type': 'application/json' })
@@ -54,7 +60,6 @@ export const getAll = model => async (req, res) => {
 
 export const createOne = model => async (req, res) => {
   const db = await getDB();
-
   const collection = db.collection(model.collection);
   const validator = model.validator;
   let data = '';
@@ -76,7 +81,7 @@ export const createOne = model => async (req, res) => {
         });
         if (!error) {
           return res
-            .writeHead(200, { 'Content-Type': 'application/json' })
+            .writeHead(201, { 'Content-Type': 'application/json' })
             .end(JSON.stringify({ _id: result.insertedId }));
         } else {
           console.log(`An error occurred: ${error}`);
@@ -92,8 +97,6 @@ export const createOne = model => async (req, res) => {
 
 export const updateOne = model => async (req, res) => {
   const db = await getDB();
-
-  console.log(model.collection);
   const collection = db.collection(model.collection);
   const validator = model.validator;
 

@@ -1,22 +1,45 @@
-import test from 'node:test';
+import { describe, it, before, after } from 'node:test';
+
+import { closeMongoDB, getDB } from '../utils/db.js';
+
 import assert from 'assert';
 
-// import {server} from '../server.js';
+import { start, close } from '../server.js';
 
-console.log('hiiii');
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { serverPort } from './../configs/index.js';
 
-const mongod = await MongoMemoryServer.create({
-  instance: {
-    dbName: 'test-db',
-  },
-});
 
-test('get one by id', t => {
-  t.test('synchronous passing test', t => {
-    const uri = mongod.getUri();
-    assert.strictEqual(1, 1);
+await start();
+
+const serverBaseUrl = `http://localhost:${serverPort}`;
+
+describe('CRUD Operations', async () => {
+  let db;
+  let todoCollection;
+  before(async () => {
+    db = getDB();
+    todoCollection = db.collection('todo');
+    await todoCollection.deleteMany();
+  });
+
+  describe('getOne', async () => {
+    it('Returns a todo doc', async () => {
+      const todoItem = {
+        title: 'Toothpaste',
+        content: 'Buy toothpaste.',
+      };
+      const { insertedId } = await todoCollection.insertOne(todoItem);
+      const response = await fetch(`${serverBaseUrl}/api/todo/${insertedId}`);
+      const { data: responseData } = await response.json();
+      assert.strictEqual(response.status, 200);
+      assert.strictEqual(responseData._id, insertedId.toString());
+    });
+  });
+
+
+  after(async () => {
+    await closeMongoDB();
+    close();
   });
 });
 
-await mongod.stop();

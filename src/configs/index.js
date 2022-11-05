@@ -1,4 +1,5 @@
 const env = process.env.NODE_ENV || 'development';
+const serverPort = process.env.PORT || 3004;
 
 let envConfig;
 switch (env) {
@@ -20,4 +21,4 @@ switch (env) {
 
 const { mongoPort, mongoDBName, mongoDBUri } = envConfig;
 
-export { mongoDBName, mongoDBUri, mongoPort };
+export { mongoDBName, mongoDBUri, mongoPort, serverPort };
