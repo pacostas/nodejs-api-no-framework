@@ -120,8 +120,9 @@ export const updateOne = model => async (req, res) => {
       const doc = JSON.parse(data);
       const { error, value } = validator.validate(doc);
       if (error) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ error }));
+        return res
+          .writeHead(200, { 'Content-Type': 'application/json' })
+          .end(JSON.stringify({ error }));
       }
 
       const filter = {
@@ -138,11 +139,12 @@ export const updateOne = model => async (req, res) => {
             console.error(err);
           });
           if (result.matchedCount === 1) {
-            res.writeHead(200);
+            return res
+              .writeHead(200, { 'Content-Type': 'application/json' })
+              .end(JSON.stringify({ result }));
           } else {
-            res.writeHead(400);
+            return res.writeHead(400);
           }
-          return res.end();
         } else {
           console.log(`An error occurred: ${error}`);
           return res.writeHead(400).end();
@@ -167,7 +169,7 @@ export const deleteOne = model => async (req, res) => {
       .pop();
 
     if (!ObjectId.isValid(_id)) {
-      res
+      return res
         .writeHead(200, { 'Content-Type': 'application/json' })
         .end(JSON.stringify({ error: 'wrong id format' }));
     }
@@ -180,11 +182,12 @@ export const deleteOne = model => async (req, res) => {
       console.error(err);
     });
     if (result.deletedCount === 1) {
-      res.writeHead(200);
+      return res
+        .writeHead(200, { 'Content-Type': 'application/json' })
+        .end(JSON.stringify({ _id }));
     } else {
-      res.writeHead(400);
+      return res.writeHead(400).end();
     }
-    return res.end();
   } catch (err) {
     console.log(err);
     return res.writeHead(500).end();

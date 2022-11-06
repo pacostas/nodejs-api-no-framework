@@ -8,6 +8,7 @@ import { start, close } from '../server.js';
 
 import { serverPort } from './../configs/index.js';
 
+import { ObjectId } from 'mongodb';
 
 await start();
 
@@ -36,6 +37,43 @@ describe('CRUD Operations', async () => {
     });
   });
 
+  describe('createOne', () => {
+    it('Creates a new todo doc', async () => {
+      const todoDoc = {
+        title: 'clean the bike .',
+        content: 'dont forget to buy soap and chain oil.',
+      };
+      const response = await fetch(`${serverBaseUrl}/api/todo`, {
+        body: JSON.stringify(todoDoc),
+        method: 'POST',
+      });
+
+      const { _id } = await response.json();
+
+      assert.strictEqual(response.status, 201);
+      assert.ok(ObjectId.isValid(_id));
+    });
+  });
+
+  describe('updateOne', async () => {
+    it('Creates a new todo doc', async () => {
+      const { insertedId } = await todoCollection.insertOne({
+        title: 'Speaker',
+        content: 'Buy a spesdasefseaker',
+      });
+
+      const updateDoc = {
+        title: 'Speaker',
+        content: 'Buy a speaker',
+      };
+      const response = await fetch(`${serverBaseUrl}/api/todo/${insertedId}`, {
+        body: JSON.stringify(updateDoc),
+        method: 'PUT',
+      });
+
+      assert.strictEqual(response.status, 200);
+    });
+  });
 
   after(async () => {
     await closeMongoDB();
