@@ -4,9 +4,11 @@
   "description": "A nodejs api without using any framework.",
   "type": "module",
   "scripts": {
-    "dev": "nodemon index.js",
+    "dev": "node index.js --wtach-path=./src",
     "start": "node index.js",
     "test": "NODE_ENV=testing node --test",
+    "test:mongodb": "node --test",
+    "test:mongodb:only": "node --test-only",
     "lint": "eslint --ignore-path .gitignore .",
     "lint:fix": "npm run lint -- --fix"
   },
@@ -26,7 +28,7 @@
   "homepage": "https://github.com/pacostas/nodejs-api-no-framework#readme",
   "devDependencies": {
     "eslint": "^8.14.0",
-    "mongodb-memory-server": "^8.5.1",
+    "mongodb-memory-server": "^8.9.5",
     "nodemon": "^2.0.15"
   },
   "dependencies": {

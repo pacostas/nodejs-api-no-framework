@@ -23,6 +23,31 @@ describe('CRUD Operations', async () => {
     await todoCollection.deleteMany();
   });
 
+  describe('getAll', async () => {
+    it('Returns an array of all the todo docs', async () => {
+      await todoCollection.insertMany([
+        {
+          title: 'Toothpaste',
+          content: 'Buy toothpaste.',
+        },
+        {
+          title: 'Soap',
+          content: 'Buy soap.',
+        },
+        {
+          title: 'Dishes',
+          content: 'Wash the dishes.',
+        },
+      ]);
+      const res = await fetch(`${serverBaseUrl}/api/todo`);
+      const { data } = await res.json();
+
+      assert.strictEqual(res.status, 200);
+      assert.strictEqual(getType(data), 'Array');
+      assert.strictEqual(data.length, 3);
+    });
+  });
+
   describe('getOne', async () => {
     it('Returns a todo doc', async () => {
       const todoItem = {
@@ -81,3 +106,6 @@ describe('CRUD Operations', async () => {
   });
 });
 
+const getType = function (x) {
+  return Object.prototype.toString.call(x).slice(8, -1);
+};
